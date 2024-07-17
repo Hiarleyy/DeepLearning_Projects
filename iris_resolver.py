@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
-from tensorflow.keras.utils import to_categorical  # Corrected import
+from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 
 #%%

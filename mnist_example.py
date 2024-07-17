@@ -33,3 +33,4 @@ model.add(Dense(classes, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
 model.fit(X_train, y_train, epochs=10, batch_size=100)
+# %%
