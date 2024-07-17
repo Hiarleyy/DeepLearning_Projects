@@ -28,7 +28,7 @@ model.add(Dense(3, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-model.fit(X,y,epochs=1000)
+model.fit(X,y,epochs=2000)
 
 # %%
 while True:
@@ -51,3 +51,4 @@ while True:
         print("Iris-virginica")
     else:
         print("Unknown class")
+# %%
