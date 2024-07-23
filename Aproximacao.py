@@ -12,7 +12,13 @@ central_point = np.array([0.5, 0.5])
 
 # Gerar dados de exemplo para 10 usuários ao redor do ponto central (posição inicial aleatória)
 np.random.seed(42)
-initial_positions = central_point + (np.random.rand(10, 2) - 0.5) * 0.2  # 10 usuários, 2 coordenadas (x, y)
+num_users = 10
+angles = np.random.uniform(0, 2 * np.pi, num_users)
+radii = np.random.uniform(0, 0.1, num_users)  # Distância máxima de 0.1 do ponto central
+
+initial_positions = np.zeros((num_users, 2))
+initial_positions[:, 0] = central_point[0] + radii * np.cos(angles)
+initial_positions[:, 1] = central_point[1] + radii * np.sin(angles)
 
 # Escalar os dados para o intervalo [0, 1]
 scaler = MinMaxScaler()
@@ -39,7 +45,7 @@ encoder_model = Model(input_layer, encoder)
 encoded_positions = encoder_model.predict(positions_scaled)
 
 # Implementar um algoritmo para otimização das posições baseado nas codificações
-def optimize_positions(encoded_positions, min_distance=0.2, max_iters=1000):
+def optimize_positions(encoded_positions, central_point, min_distance=0.3, min_distance_to_central=0.3, max_iters=1000):
     optimized_encoded_positions = np.copy(encoded_positions)
     n_points = optimized_encoded_positions.shape[0]
 
@@ -48,9 +54,12 @@ def optimize_positions(encoded_positions, min_distance=0.2, max_iters=1000):
 
     for _ in range(max_iters):
         distances = calculate_distances(optimized_encoded_positions)
+        central_distances = np.linalg.norm(optimized_encoded_positions - central_point, axis=1)
+        
         # Verificar se todas as distâncias são maiores ou iguais à distância mínima
-        if np.all(distances >= min_distance) or np.all(distances == 0):
+        if (np.all(distances >= min_distance) or np.all(distances == 0)) and np.all(central_distances >= min_distance_to_central):
             break
+        
         # Ajustar as posições que não atendem ao critério de distância mínima
         for i in range(n_points):
             for j in range(i + 1, n_points):
@@ -61,9 +70,21 @@ def optimize_positions(encoded_positions, min_distance=0.2, max_iters=1000):
                     if diff_norm > 0:
                         diff = diff / diff_norm * (min_distance - distances[i, j])
                         optimized_encoded_positions[j] += diff
+
+            # Ajustar a posição se estiver muito perto do ponto central
+            if central_distances[i] < min_distance_to_central:
+                diff = optimized_encoded_positions[i] - central_point
+                diff_norm = np.linalg.norm(diff)
+                if diff_norm > 0:
+                    diff = diff / diff_norm * (min_distance_to_central - central_distances[i])
+                    optimized_encoded_positions[i] += diff
+
     return optimized_encoded_positions
 
-optimized_encoded_positions = optimize_positions(encoded_positions)
+# Normalizar o ponto central (antena) usando o mesmo scaler
+central_point_scaled = scaler.transform(central_point.reshape(1, -1)).flatten()
+
+optimized_encoded_positions = optimize_positions(encoded_positions, central_point_scaled)
 
 # Decodificar as posições otimizadas
 decoder_input = Input(shape=(encoding_dim,))
