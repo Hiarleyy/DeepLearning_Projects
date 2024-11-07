@@ -12,11 +12,11 @@ antenas = np.array([
 
 # Gerar posições iniciais aleatórias para os usuários
 np.random.seed(42)
-latitude = np.random.uniform(-23.6, -23.4, 40)
-longitude = np.random.uniform(-46.7, -46.5, 40)
+latitude = np.random.uniform(-23.6, -23.4, 100)
+longitude = np.random.uniform(-46.7, -46.5, 100)
 user_locations = np.column_stack((latitude, longitude))
 # Gerar posições iniciais aleatórias para os usuários no plano
-num_users = 10
+num_users = 20
 user_locations = np.random.rand(num_users, 2) * np.array([0.2, 0.2]) + np.array([-23.6, -46.7])
 # Parâmetros de movimentação
 step_size = 0.05  # Tamanho do passo (fração da distância para a antena)
@@ -35,7 +35,7 @@ ax.legend()
 
 # Função de atualização para a animação
 min_user_distance = 0.05  # Distância mínima entre usuários
-repulsion_strength = 0.01   # Força da repulsão
+forca_repulsao = 0.01   # Força da repulsão
 
 def update(frame):
     global user_locations
@@ -61,9 +61,9 @@ def update(frame):
             delta = user_locations[i] - user_locations[j]
             distance = np.linalg.norm(delta)
             if distance < min_user_distance and distance > 0:
-                repulsion = (delta / distance) * (min_user_distance - distance) * repulsion_strength
-                movement_vectors[i] += repulsion
-                movement_vectors[j] -= repulsion
+                repulsao = (delta / distance) * (min_user_distance - distance) * forca_repulsao
+                movement_vectors[i] += repulsao
+                movement_vectors[j] -= repulsao
 
     # Atualizar posições
     user_locations += movement_vectors
@@ -72,6 +72,23 @@ def update(frame):
     scat_users.set_offsets(user_locations)
     return scat_users,
 
+# Armazenar as posições iniciais
+initial_user_locations = user_locations.copy()
+# Criar a animação
+ani = FuncAnimation(fig, update, frames=range(50), interval=200, blit=True)
+# Mostrar a animação
+plt.show()
+# Imprimir posições iniciais e finais
+print("Posições iniciais dos usuários:")
+for idx, pos in enumerate(initial_user_locations):
+    print("--------------------------------------")
+    print(f"Usuário {idx}: {pos}")
+
+print("======================================")
+print("Posições finais dos usuários:")
+for idx, pos in enumerate(initial_user_locations):
+    print("--------------------------------------")
+    print(f"Usuário {idx}: {pos}")
 
 # Criar a animação
 ani = FuncAnimation(fig, update, frames=range(50), interval=200, blit=True)
