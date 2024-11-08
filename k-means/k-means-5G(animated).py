@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from scipy.spatial import distance_matrix
 
-
-
 # Coordenadas fixas das antenas
 antenas = np.array([
     [-23.5, -46.6],
