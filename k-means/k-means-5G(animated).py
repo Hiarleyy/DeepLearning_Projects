@@ -40,6 +40,9 @@ ax.legend()
 min_user_distance = 0.05  # Distância mínima entre usuários
 forca_repulsao = 0.01   # Força da repulsão
 
+initial_user_locations = user_locations.copy()
+direction_vectors = []
+
 def update(frame):
     global user_locations
 
@@ -57,6 +60,12 @@ def update(frame):
             direction_vector = antenas[antenna_idx] - user_locations[i]
             normalized_vector = direction_vector / np.linalg.norm(direction_vector)
             movement_vectors[i] += step_size * normalized_vector * distances_to_nearest[i]
+
+            if frame == 0:
+                direction_vectors.append(direction_vector)
+        else:
+            if frame == 0:
+                direction_vectors.append([0, 0])  # Usuário já está próximo da antena
 
     # Repulsão entre usuários
     for i in range(len(user_locations)):
@@ -76,11 +85,21 @@ def update(frame):
     return scat_users,
 
 # Armazenar as posições iniciais
-initial_user_locations = user_locations.copy()
+
 # Criar a animação
 ani = FuncAnimation(fig, update, frames=range(50), interval=200, blit=True)
 # Mostrar a animação
 plt.show()
+
+##df = pd.DataFrame({
+##    'Usuario': np.arange(len(initial_user_locations)),
+##    'Posicao_Inicial_X': initial_user_locations[:, 0],
+##    'Posicao_Inicial_Y': initial_user_locations[:, 1],
+##    'Direcao_X':[vec[0] for vec in direction_vectors],
+##    'Direcao_Y':[vec[1] for vec in direction_vectors]
+##})
+##df.to_csv('usuarios_posicoes_e_vetores.csv', index=False)
+
 # Imprimir posições iniciais e finais
 print("Posições iniciais dos usuários:")
 for idx, pos in enumerate(initial_user_locations):
@@ -89,13 +108,8 @@ for idx, pos in enumerate(initial_user_locations):
 
 print("======================================")
 print("Posições finais dos usuários:")
-for idx, pos in enumerate(initial_user_locations):
+for idx, pos in enumerate(user_locations):  # Correção feita aqui
     print("--------------------------------------")
     print(f"Usuário {idx}: {pos}")
-
-# Criar a animação
-ani = FuncAnimation(fig, update, frames=range(50), interval=200, blit=True)
-ani.save("movimento_usuarios.gif", writer="imagemagick")
-plt.show()
 
 # ani.save("movimento_usuarios.mp4", writer="ffmpeg")
