@@ -6,15 +6,15 @@ from scipy.spatial import distance_matrix
 
 # Coordenadas fixas das antenas
 antenas = np.array([
-    [-23.5, -46.6],
-    [-23.55, -46.65],
-    [-23.52, -46.52]
+    [100, -100],
+    [100, 100]
 ])
 
 # Gerar posições iniciais aleatórias para os usuários
 np.random.seed(42)
 num_users = 20
-user_locations = np.random.rand(num_users, 2) * np.array([0.2, 0.2]) + np.array([-23.6, -46.7])
+# Gerar posições iniciais aleatórias para os usuários
+user_locations = np.random.rand(num_users, 2) * np.array([200, 200]) + np.array([-100, -100])
 
 # Armazenar as posições iniciais
 initial_user_locations = user_locations.copy()
@@ -34,8 +34,7 @@ forca_repulsao = 0.01     # Força da repulsão
 fig, ax = plt.subplots(figsize=(10, 6))
 scat_users = ax.scatter(user_locations[:, 0], user_locations[:, 1], c='blue', label="Usuários")
 scat_antennas = ax.scatter(antenas[:, 0], antenas[:, 1], c='red', marker='x', s=100, label="Antenas (fixas)")
-ax.set_xlim(-23.6, -23.4)
-ax.set_ylim(-46.7, -46.5)
+
 ax.set_xlabel("Latitude")
 ax.set_ylabel("Longitude")
 ax.set_title("Movimento dos Usuários em Direção às Antenas")
