@@ -6,8 +6,8 @@ from scipy.spatial import distance_matrix
 
 # Coordenadas fixas das antenas
 antenas = np.array([
-    [100, -100],
-    [100, 100]
+    [50, -50],
+    [-50, 50]
 ])
 
 # Gerar posições iniciais aleatórias para os usuários
@@ -24,11 +24,11 @@ direction_vectors = []
 
 # Parâmetros de movimentação
 step_size = 0.05  # Tamanho do passo
-min_distance = 0.01  # Distância mínima para a antena
+min_distance = 15  # Distância mínima para a antena
 
 # Parâmetros para repulsão entre usuários
-min_user_distance = 0.05  # Distância mínima entre usuários
-forca_repulsao = 0.01     # Força da repulsão
+min_user_distance = 7  # Distância mínima entre usuários
+forca_repulsao = 0.05     # Força da repulsão
 
 # Preparação para a animação
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -85,6 +85,7 @@ def update(frame):
 
 # Criar a animação
 ani = FuncAnimation(fig, update, frames=range(50), interval=200, blit=True)
+ani.save("movimento_usuarios.gif", writer="imagemagick")
 plt.show()
 
 # Criar o DataFrame com as informações desejadas
@@ -95,14 +96,9 @@ df = pd.DataFrame({
 
 })
 
-df2 = pd.DataFrame({
-    'Direcao_X': [vec[0] for vec in direction_vectors],
-    'Direcao_Y': [vec[1] for vec in direction_vectors]
-})
-
 # Salvar em um arquivo CSV
 df.to_csv('Posicoes.csv', index=False)
-df2.to_csv('Vetores.csv', index=False)
+
 
 # Opcional: imprimir o DataFrame
 print(df)
