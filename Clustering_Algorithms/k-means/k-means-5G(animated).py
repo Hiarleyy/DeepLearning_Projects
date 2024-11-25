@@ -1,9 +1,10 @@
+#%%
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from scipy.spatial import distance_matrix
-
+#%%
 # Coordenadas fixas das antenas
 antenas = np.array([
     [100, -100],
@@ -15,10 +16,11 @@ np.random.seed(42)
 num_users = 20
 # Gerar posições iniciais aleatórias para os usuários
 user_locations = np.random.rand(num_users, 2) * np.array([200, 200]) + np.array([-100, -100])
-
+#%%
 # Armazenar as posições iniciais
 initial_user_locations = user_locations.copy()
-
+initial_user_locations
+#%%
 # Lista para armazenar os vetores direção
 direction_vectors = []
 
@@ -39,6 +41,9 @@ ax.set_xlabel("Latitude")
 ax.set_ylabel("Longitude")
 ax.set_title("Movimento dos Usuários em Direção às Antenas")
 ax.legend()
+
+# Inicializar DataFrame para armazenar as posições e direções
+df_positions = pd.DataFrame(columns=['Frame', 'Usuario', 'Posicao_X', 'Posicao_Y'])
 
 def update(frame):
     global user_locations
@@ -79,6 +84,10 @@ def update(frame):
     # Atualizar posições
     user_locations += movement_vectors
 
+    # Armazenar as posições no DataFrame
+    for i in range(len(user_locations)):
+        df_positions.loc[len(df_positions)] = [frame, i, user_locations[i][0], user_locations[i][1]]
+
     # Atualizar gráfico
     scat_users.set_offsets(user_locations)
     return scat_users,
@@ -88,21 +97,32 @@ ani = FuncAnimation(fig, update, frames=range(50), interval=200, blit=True)
 plt.show()
 
 # Criar o DataFrame com as informações desejadas
-df = pd.DataFrame({
+df_initial = pd.DataFrame({
     'Usuario': np.arange(len(initial_user_locations)),
     'Posicao_Inicial_X': initial_user_locations[:, 0].round(5),
     'Posicao_Inicial_Y': initial_user_locations[:, 1].round(5),
-
 })
 
-df2 = pd.DataFrame({
+df_directions = pd.DataFrame({
     'Direcao_X': [vec[0] for vec in direction_vectors],
     'Direcao_Y': [vec[1] for vec in direction_vectors]
 })
 
 # Salvar em um arquivo CSV
-df.to_csv('Posicoes.csv', index=False)
-df2.to_csv('Vetores.csv', index=False)
+df_initial.to_csv('Posicoes_Iniciais.csv', index=False)
+df_directions.to_csv('Vetores.csv', index=False)
+df_positions.to_csv('Movimento_Usuarios.csv', index=False)
 
-# Opcional: imprimir o DataFrame
-print(df)
+# Opcional: imprimir os DataFrames
+print(df_initial)
+print(df_directions)
+print(df_positions)
+# %%
+df_initial
+# %%
+df_directions
+# %%
+df_positions
+# %%
+movimento = pd.read_csv('Movimento_Usuarios.csv')
+movimento
