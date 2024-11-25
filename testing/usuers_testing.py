@@ -86,6 +86,13 @@ df_users
 # %%
 
 df_users[['Posicao_Inicial_X', 'Posicao_Inicial_Y']]
+antena3 = [-300, -300]
 
+# Calculate distances in x and y from each user to antena3
+df_users['Distance_X_to_Antena3'] = df_users['Posicao_Inicial_X'] - antena3[0]
+df_users['Distance_Y_to_Antena3'] = df_users['Posicao_Inicial_Y'] - antena3[1]
+
+# Show the distances
+df_users[['Posicao_Inicial_X', 'Posicao_Inicial_Y', 'Distance_X_to_Antena3', 'Distance_Y_to_Antena3']]
 
 # %%
