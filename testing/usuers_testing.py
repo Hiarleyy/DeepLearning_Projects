@@ -84,9 +84,9 @@ df_users['Cluster'] = kmeans.labels_
 
 df_users
 # %%
-
+## filtro por centroide (falta fazer)
 df_users[['Posicao_Inicial_X', 'Posicao_Inicial_Y']]
-antena3 = [-300, -300]
+antena3 = [-300, 200]
 
 # Calculate distances in x and y from each user to antena3
 df_users['Distance_X_to_Antena3'] = df_users['Posicao_Inicial_X'] - antena3[0]
