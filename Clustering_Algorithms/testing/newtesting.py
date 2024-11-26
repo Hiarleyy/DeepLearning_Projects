@@ -436,3 +436,47 @@ ani = FuncAnimation(fig, update, frames=range(101), interval=100, blit=True)
 ani.save('user_reassignment_animation.mp4', writer='ffmpeg')
 
 plt.show()
+
+#%%
+# Create a DataFrame to store the displacement information
+displacement_data = []
+
+for i, row in df.iterrows():
+    original_position = original_users.loc[i, ['Posicao_Inicial_X', 'Posicao_Inicial_Y']].values
+    new_position = row[['Posicao_Inicial_X', 'Posicao_Inicial_Y']].values
+    displacement_data.append({
+        'ue': row['ue'],
+        'original_x': original_position[0],
+        'original_y': original_position[1],
+        'new_x': new_position[0],
+        'new_y': new_position[1],
+        'vetor_direcao_x': new_position[0] - original_position[0],
+        'vetor_direcao_y': new_position[1] - original_position[1]
+    })
+
+displacement_df = pd.DataFrame(displacement_data)
+print(displacement_df)
+
+# Create a DataFrame to store the centroid information
+centroid_data = []
+
+for i, centroid in enumerate(centroids):
+    centroid_data.append({
+        'cluster': i,
+        'centroid_x': centroid[0],
+        'centroid_y': centroid[1]
+    })
+
+centroid_df = pd.DataFrame(centroid_data)
+print(centroid_df)
+# %%
+displacement_df
+# %%
+centroid_df
+# %%
+# Calculate the Euclidean distance for each displacement
+displacement_df['modulo_vetor'] = np.sqrt(displacement_df['vetor_direcao_x']**2 + displacement_df['vetor_direcao_y']**2)
+print(displacement_df)
+# %%
+displacement_df
+# %%
