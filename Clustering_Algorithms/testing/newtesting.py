@@ -362,3 +362,77 @@ ani.save('user_reassignment_animation.mp4', writer='ffmpeg')
 
 plt.show()
 # %%
+# Update the dataframe with new positions and clusters
+df.update(balanced_users[['Posicao_Inicial_X', 'Posicao_Inicial_Y', 'cluster']])
+
+# Function to move users towards their cluster centroids
+def move_towards_centroids(df, centroids, steps=100):
+    for step in range(steps):
+        for i, row in df.iterrows():
+            cluster = row['cluster']
+            centroid = centroids[cluster]
+            df.at[i, 'Posicao_Inicial_X'] += (centroid[0] - row['Posicao_Inicial_X']) / steps
+            df.at[i, 'Posicao_Inicial_Y'] += (centroid[1] - row['Posicao_Inicial_Y']) / steps
+    return df
+
+# Move reassigned users towards their new cluster centroids
+centroids = scaler.inverse_transform(kmeans.cluster_centers_)
+df = move_towards_centroids(df, centroids)
+
+# Create a figure and axis for the animation
+fig, ax = plt.subplots(figsize=(10, 10))
+ax.grid(True)
+ax.set_xlim(-300, 300)
+ax.set_ylim(-300, 300)
+
+# Plot cluster regions
+Z = kmeans.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+ax.contourf(xx, yy, Z, alpha=0.3, cmap='viridis')
+
+# Plot initial positions
+scatters = {}
+for priority in df['prioridade'].unique():
+    subset = df[df['prioridade'] == priority]
+    scatters[priority] = ax.scatter(subset['Posicao_Inicial_X'], subset['Posicao_Inicial_Y'], 
+                                    c=colors[priority], label=priority, s=100)
+
+# Highlight reassigned users
+reassigned_users = df[df['cluster'] != original_users['cluster']]
+reassigned_scat = ax.scatter(reassigned_users['Posicao_Inicial_X'], reassigned_users['Posicao_Inicial_Y'],
+                             edgecolor='yellow', facecolor='none', s=300, linewidth=2, label='Reassigned Users')
+
+# Draw different shapes around clusters
+for i in range(3):
+    subset = df[df['cluster'] == i]
+    ax.scatter(subset['Posicao_Inicial_X'], subset['Posicao_Inicial_Y'],
+               edgecolor='black', facecolor='none', s=200, linewidth=1.5, marker=shapes[i], label=f'Cluster {i + 1}')
+
+# Plot centroids
+ax.scatter(centroids[:, 0], centroids[:, 1], c='yellow', s=300, marker='X', edgecolor='black', linewidth=2, label='Centroids')
+
+ax.set_xlabel('Posicao_Inicial_X')
+ax.set_ylabel('Posicao_Inicial_Y')
+ax.legend(title='Prioridade e Clusters')
+ax.set_title('Usuários se movendo para novos Clusters')
+
+# Function to update the scatter plot
+def update(frame):
+    for priority in df['prioridade'].unique():
+        subset = df[df['prioridade'] == priority]
+        new_positions = subset[['Posicao_Inicial_X', 'Posicao_Inicial_Y']].values * (frame / 100) + \
+                        original_users[original_users['prioridade'] == priority][['Posicao_Inicial_X', 'Posicao_Inicial_Y']].values * (1 - frame / 100)
+        scatters[priority].set_offsets(new_positions)
+    
+    new_positions_reassigned = reassigned_users[['Posicao_Inicial_X', 'Posicao_Inicial_Y']].values * (frame / 100) + \
+                               original_users.loc[reassigned_users.index][['Posicao_Inicial_X', 'Posicao_Inicial_Y']].values * (1 - frame / 100)
+    reassigned_scat.set_offsets(new_positions_reassigned)
+    return list(scatters.values()) + [reassigned_scat]
+
+# Create animation
+ani = FuncAnimation(fig, update, frames=range(101), interval=100, blit=True)
+
+# Save animation
+ani.save('user_reassignment_animation.mp4', writer='ffmpeg')
+
+plt.show()
